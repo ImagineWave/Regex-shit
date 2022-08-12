@@ -55,6 +55,21 @@ public class OktmoData {
     public List<Place> findBy1(int code1){
         return places.stream().filter(p -> p.getCode1() == code1 ).collect(Collectors.toList());
     }
+    public List<Place> findBy2(int code2){
+        return places.stream().filter(p -> p.getCode1() == code2 ).collect(Collectors.toList());
+    }
+    public List<Place> findBy3(int code3){
+        return places.stream().filter(p -> p.getCode1() == code3 ).collect(Collectors.toList());
+    }
+    public List<Place> findBy4(int code4){
+        return places.stream().filter(p -> p.getCode1() == code4 ).collect(Collectors.toList());
+    }
+    public List<Place> findAllInRegionByPlace(Place place){
+        return places.stream().filter(
+                (p -> (p.getCode1() == place.getCode1()&&p.getCode2() == place.getCode2()))
+        ).collect(Collectors.toList());
+    }
+
     public List<Place> findByStatus(String status){
         return places.stream().filter(p -> p.getStatus().equals(status) ).collect(Collectors.toList());
     }
