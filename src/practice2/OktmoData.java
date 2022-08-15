@@ -7,15 +7,16 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class OktmoData {
     private List<Place> places = new ArrayList<>();
+    public List<Place> getPlaces() {
+        return places;
+    }
 
     public void readFile(String filename) {
         places.clear();
@@ -32,7 +33,7 @@ public class OktmoData {
     }
 //"01";"512";"000";"146";"9";"2";"п Калиновка";;;"493";"3";12.08.2021;01.01.2022
     //private static final Pattern RE=Pattern.compile("\"(\\d+)\";\"(\\d+)\";\"(\\d+)\";\"(\\d+)\"");
-    private static final Pattern RE=Pattern.compile("(\\d+)\";\"(\\d+)\";\"(\\d+)\";\"(\\d+)\";\"\\d\";\"\\d\";\"([А-Яа-я\\s]+) ([А-Яа-я\\s]+)");
+    private static final Pattern RE=Pattern.compile("(\\d+)\";\"(\\d+)\";\"(\\d+)\";\"(\\d+)\";\"\\d\";\"\\d\";\"([А-Яа-я\\s]+) ([А-Я а-я\\s-]+)");
     //"(\d+)";"(\d+)";"(\d+)";"(\d+)";"\d";"\d";"([А-Яа-я\s]) ([А-Яа-я\s]+)
     private void readLine(String s) {
         Matcher m = RE.matcher(s);
@@ -52,6 +53,19 @@ public class OktmoData {
          //places.stream().findFirst(k -> name)
         return places.stream().filter(p -> p.getName().equals(name)).collect(Collectors.toList());
     }
+    public List<Place> getAll(){
+        return places.stream().collect(Collectors.toList());
+    }
+    public Place findByNameCode4nonZero(String name){
+        //places.stream().findFirst(k -> name)
+        Optional<Place> place =places.stream().filter(p -> (p.getName().equals(name)&&p.getCode4() ==1)).findFirst();
+        return place.get();
+    }
+    public List<Place> getAlluniqueSorted(List<Place> places){
+        List<Place> uniques = places.stream().distinct().collect(Collectors.toList());
+        return uniques.stream().sorted().collect(Collectors.toList());
+    }
+
     public List<Place> findBy1(int code1){
         return places.stream().filter(p -> p.getCode1() == code1 ).collect(Collectors.toList());
     }
@@ -66,14 +80,35 @@ public class OktmoData {
     }
     public List<Place> findAllInRegionByPlace(Place place){
         return places.stream().filter(
-                (p -> (p.getCode1() == place.getCode1()&&p.getCode2() == place.getCode2()))
+                (p -> (p.getCode1() == place.getCode1()&&(p.getCode4() != 0)))
         ).collect(Collectors.toList());
     }
+
 
     public List<Place> findByStatus(String status){
         return places.stream().filter(p -> p.getStatus().equals(status) ).collect(Collectors.toList());
     }
-    public List<Place> getPlaces() {
-        return places;
+    public List<Place> findOVO (){
+       // return places.stream().filter(p -> (p.getName().endsWith("ово")||(p.getName().contains("-")))).collect(Collectors.toList());
+        return places.stream().filter(p -> (p.getName().endsWith("ово")||(p.getName().contains("-")))).collect(Collectors.toList());
     }
+    public Map<String, Integer> getNamesRating(List<Place> places){
+        Map<String, Integer> countPlaces = places.stream().collect(HashMap::new, (m, place) -> {
+            if(m.containsKey(place.getName()))
+                m.put(place.getName(), m.get(place.getName()) + 1);
+            else
+                m.put(place.getName(), 1);
+        }, HashMap::putAll);
+
+        Map<String, Integer> sortedRating = countPlaces.entrySet().stream()
+                .sorted(Map.Entry.comparingByValue())
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        Map.Entry::getValue,
+                        (oldVal, newVal) -> oldVal,
+                        LinkedHashMap::new));
+
+        return sortedRating;
+    }
+
 }

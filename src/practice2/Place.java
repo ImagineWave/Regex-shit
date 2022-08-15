@@ -1,6 +1,6 @@
 package practice2;
 
-public class Place {
+public class Place implements Comparable<Place>{
     int code1;
     int code2;
     int code3;
@@ -56,5 +56,11 @@ public class Place {
         sb.append(" name:");
         sb.append(name);
         return sb.toString();
+    }
+
+    @Override
+    public int compareTo(Place place) {
+
+        return name.compareTo(place.getName());
     }
 }
